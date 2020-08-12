@@ -35,8 +35,35 @@
 <script>
 export default {
     name:"cart",
-    props:['title','cart'],
+    props:['title'],
+    data(){
+        return{
+            cart:JSON.parse(localStorage.getItem('cart')) || []
+        }
+    },
+    watch:{
+        cart:{
+            handler(newVal,oldVal){
+                this.setLocalData(newVal);
+                console.log(oldVal);
+            },
+            deep:true
+        }
+    },
+    created(){
+        this.$bus.$on('addCart',good=>{
+            const ret = this.cart.find(v=>v.id === good.id);
+            if(!ret){ //购物车没有数据
+                this.cart.push(good);
+            }else{
+                ret.count ++;
+            }
+        })
+    },
     methods:{
+        setLocalData(newVal){
+            localStorage.setItem('cart',JSON.stringify(newVal));
+        },
         remove(index){
             if(window.confirm('确定是否要删除？')){
                 this.cart.splice(index,1);//从索引开始删一条数据
